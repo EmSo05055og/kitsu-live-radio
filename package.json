@@ -1,0 +1,22 @@
+{
+  "name": "kitsu-live-radio",
+  "version": "1.0.0",
+  "description": "Live Radio Station mit Neon-Design und Synchronisation",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "radio",
+    "live",
+    "stream",
+    "music"
+  ],
+  "author": "KITSU",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {}
+}
