@@ -462,6 +462,92 @@
       pointer-events: none;
     }
 
+    /* Start Overlay */
+    .start-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 10, 20, 0.92);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease;
+    }
+
+    .start-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .start-box {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .start-logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--neon-cyan);
+      letter-spacing: 4px;
+      text-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
+      margin-bottom: 12px;
+    }
+
+    .start-sub {
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 44px;
+    }
+
+    .start-btn {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      border: 2px solid var(--neon-cyan);
+      background: rgba(0, 212, 255, 0.08);
+      color: var(--neon-cyan);
+      font-size: 40px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 28px;
+      transition: all 0.25s ease;
+      box-shadow:
+        0 0 20px rgba(0, 212, 255, 0.3),
+        0 0 50px rgba(0, 212, 255, 0.1);
+      animation: startPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes startPulse {
+      0%, 100% {
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.3), 0 0 50px rgba(0, 212, 255, 0.1);
+      }
+      50% {
+        box-shadow: 0 0 35px rgba(0, 212, 255, 0.6), 0 0 70px rgba(0, 212, 255, 0.2);
+      }
+    }
+
+    .start-btn:hover {
+      background: rgba(0, 212, 255, 0.18);
+      transform: scale(1.08);
+    }
+
+    .start-btn:active {
+      transform: scale(0.96);
+    }
+
+    .start-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
     /* Impressum Footer */
     .footer-links {
       text-align: center;
@@ -486,6 +572,17 @@
   </style>
 </head>
 <body>
+
+  <!-- Start Overlay -->
+  <div class="start-overlay" id="startOverlay">
+    <div class="start-box">
+      <div class="start-logo">KITSU_LIVE</div>
+      <div class="start-sub">Live Radio Station</div>
+      <button class="start-btn" id="startBtn">▶</button>
+      <div class="start-label">Einschalten</div>
+    </div>
+  </div>
+
   <div class="radio-container">
     <div class="on-air-badge">🔴 ON AIR</div>
     <h1 class="station-name">KITSU_LIVE</h1>
@@ -642,40 +739,28 @@
       }
 
       setupEventListeners() {
-        // Autoplay ohne User-Interaktion mit muted-Trick
-        const startAutoplay = () => {
-          if (this.audio && this.audio.paused) {
-            this.debug('Starte Autoplay mit muted-Trick...', 'AUDIO');
-            this.audio.muted = true;
-            this.audio.play()
-              .then(() => {
-                this.debug('✅ Audio spielt (muted)!', 'SUCCESS');
-                this.isPlaying = true;
-                // Nach kurzem Delay unmute - aber nur wenn User nicht gemuted hat
-                setTimeout(() => {
-                  if (!this.isMuted) {
-                    this.audio.muted = false;
-                    this.debug('Audio unmuted', 'AUDIO');
-                  }
-                }, 100);
-              })
-              .catch(err => {
-                this.debug(`Autoplay Fehler: ${err.message}`, 'WARN');
-                // Fallback: Warte auf User-Interaktion
-                document.addEventListener('click', () => this.tryPlay(), { once: true });
-              });
-          }
+        // Start-Overlay Logik
+        const overlay = document.getElementById('startOverlay');
+        const startBtn = document.getElementById('startBtn');
+
+        const startRadio = () => {
+          // Overlay ausblenden
+          overlay.classList.add('hidden');
+          setTimeout(() => overlay.style.display = 'none', 500);
+
+          // Radio starten
+          this.audio.muted = false;
+          this.audio.play()
+            .then(() => {
+              this.isPlaying = true;
+              this.debug('✅ Radio gestartet via Start-Button', 'SUCCESS');
+            })
+            .catch(err => {
+              this.debug(`Play Fehler: ${err.message}`, 'WARN');
+            });
         };
 
-        // Versuche sofort zu spielen
-        setTimeout(startAutoplay, 500);
-
-        // Helper-Funktion für manuelles Play
-        this.tryPlay = () => {
-          if (this.audio && this.audio.paused) {
-            this.audio.play().catch(err => this.debug(`Play Fehler: ${err.message}`, 'WARN'));
-          }
-        };
+        startBtn.addEventListener('click', startRadio);
 
         this.muteBtn.addEventListener('click', () => this.toggleMute());
         this.volumeSlider.addEventListener('input', (e) => this.setVolume(e.target.value));
@@ -871,42 +956,22 @@
 
             this.currentTrackId = trackId;
 
-            // WICHTIG: AUTOPLAY MIT MUTED-TRICK (funktioniert immer!)
+            // Muted-Status vom User respektieren
+            this.audio.muted = this.isMuted;
+
+            // Versuche abzuspielen (klappt wenn User schon interagiert hat)
             try {
-              this.debug('Versuche Audio abzuspielen mit muted-Trick...', 'AUDIO');
-              
-              // Trick: Mute und Play zusammen funktioniert oft ohne Browser-Blockierung
-              // ABER: Wenn User bereits gemuted hat, bleibt es gemuted!
-              const wasUserMuted = this.isMuted;
-              this.audio.muted = true;
               const playPromise = this.audio.play();
-              
               if (playPromise !== undefined) {
                 playPromise
                   .then(() => {
                     this.debug('✅ Audio spielt jetzt ab!', 'SUCCESS');
                     this.isPlaying = true;
-                    
-                    // Unmute nach kurzer Verzögerung - aber nur wenn User nicht gemuted hat
-                    setTimeout(() => {
-                      if (!wasUserMuted) {
-                        this.audio.muted = false;
-                        const vol = localStorage.getItem('volume');
-                        if (vol) {
-                          this.audio.volume = parseFloat(vol) / 100;
-                        }
-                        this.debug('🔊 Audio unmuted', 'AUDIO');
-                      } else {
-                        // User hat muted: Muted-Status beibehalten, Icon korrekt anzeigen
-                        this.audio.muted = true;
-                        this.muteBtn.textContent = '🔇';
-                        this.debug('🔇 Muted-Status beibehalten (User hat gemuted)', 'AUDIO');
-                      }
-                    }, 150);
                   })
                   .catch(err => {
                     this.debug(`Autoplay Fehler: ${err.name} - ${err.message}`, 'WARN');
                     this.isPlaying = false;
+                    // setupEventListeners kümmert sich um den Muted-Trick beim ersten Start
                   });
               }
             } catch (err) {
