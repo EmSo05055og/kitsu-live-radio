@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KITSU_LIVE – Impressum</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Orbitron:wght@400;700;900&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-dark: #0f0f1e;
+      --secondary-dark: #1a1a2e;
+      --tertiary-dark: #2d2d44;
+      --neon-cyan: #00d4ff;
+      --neon-magenta: #ff006e;
+      --neon-purple: #b537f2;
+      --text-light: #e0e0ff;
+      --text-dim: #a0a0c0;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
+      color: var(--text-light);
+      font-family: 'Space Mono', monospace;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 560px;
+    }
+
+    /* Back link */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+      transition: color 0.2s ease;
+    }
+
+    .back-link:hover {
+      color: var(--neon-cyan);
+    }
+
+    .back-arrow {
+      font-size: 14px;
+    }
+
+    /* Card */
+    .card {
+      background: rgba(26, 26, 46, 0.85);
+      border: 2px solid var(--neon-cyan);
+      border-radius: 20px;
+      padding: 36px 32px;
+      backdrop-filter: blur(10px);
+      box-shadow:
+        0 0 20px rgba(0, 212, 255, 0.2),
+        0 0 50px rgba(181, 55, 242, 0.08),
+        inset 0 0 20px rgba(0, 212, 255, 0.04);
+    }
+
+    /* Header */
+    .card-header {
+      text-align: center;
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .station-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--neon-cyan);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .page-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-light);
+      letter-spacing: 2px;
+    }
+
+    /* Sections */
+    .section {
+      margin-bottom: 28px;
+    }
+
+    .section:last-child {
+      margin-bottom: 0;
+    }
+
+    .section-title {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--neon-cyan);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(0, 212, 255, 0.2);
+    }
+
+    .section-body {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.9;
+    }
+
+    .section-body a {
+      color: var(--neon-magenta);
+      text-decoration: none;
+      transition: color 0.2s ease, text-shadow 0.2s ease;
+    }
+
+    .section-body a:hover {
+      color: var(--neon-cyan);
+      text-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
+    }
+
+    /* Disclaimer box */
+    .notice-box {
+      background: rgba(181, 55, 242, 0.06);
+      border: 1px solid rgba(181, 55, 242, 0.25);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 11px;
+      color: var(--text-dim);
+      line-height: 1.7;
+      margin-top: 28px;
+    }
+
+    .notice-box strong {
+      color: var(--neon-purple);
+    }
+
+    /* Footer */
+    .card-footer {
+      text-align: center;
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(0, 212, 255, 0.15);
+      font-size: 10px;
+      color: rgba(160, 160, 192, 0.5);
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <a href="index.html" class="back-link">
+      <span class="back-arrow">←</span> Zurück zum Radio
+    </a>
+
+    <div class="card">
+
+      <div class="card-header">
+        <div class="station-label">KITSU_LIVE</div>
+        <h1 class="page-title">Impressum</h1>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Angaben gemäß § 5 TMG</div>
+        <div class="section-body">
+          Max Mustermann<br>
+          Musterstraße 12<br>
+          12345 Musterstadt<br>
+          Deutschland
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Kontakt</div>
+        <div class="section-body">
+          E-Mail: <a href="mailto:kontakt@beispiel.de">kontakt@beispiel.de</a>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Verantwortlich für den Inhalt</div>
+        <div class="section-body">
+          Max Mustermann<br>
+          (Anschrift wie oben)
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Haftungsausschluss</div>
+        <div class="section-body">
+          Die Inhalte dieser Seite wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte kann jedoch keine Gewähr übernommen werden.
+        </div>
+      </div>
+
+      <div class="notice-box">
+        <strong>Hinweis:</strong> Bitte ersetze die Platzhalterdaten (Name, Adresse, E-Mail) durch deine echten Angaben. Ein Impressum ist in Deutschland gesetzlich vorgeschrieben.
+      </div>
+
+      <div class="card-footer">
+        © 2025 KITSU_LIVE · Alle Rechte vorbehalten
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

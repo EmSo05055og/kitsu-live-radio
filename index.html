@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KITSU_LIVE - Live Radio Station</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Orbitron:wght@400;700;900&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-dark: #0f0f1e;
+      --secondary-dark: #1a1a2e;
+      --tertiary-dark: #2d2d44;
+      --neon-cyan: #00d4ff;
+      --neon-magenta: #ff006e;
+      --neon-purple: #b537f2;
+      --text-light: #e0e0ff;
+      --text-dim: #a0a0c0;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
+      color: var(--text-light);
+      font-family: 'Space Mono', monospace;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    .radio-container {
+      width: 100%;
+      max-width: 500px;
+      background: rgba(26, 26, 46, 0.8);
+      border: 2px solid var(--neon-cyan);
+      border-radius: 20px;
+      padding: 30px;
+      position: relative;
+      backdrop-filter: blur(10px);
+      
+      /* Neon Glow Effekt */
+      box-shadow: 
+        0 0 20px rgba(0, 212, 255, 0.3),
+        0 0 40px rgba(255, 0, 110, 0.2),
+        0 0 60px rgba(181, 55, 242, 0.1),
+        inset 0 0 20px rgba(0, 212, 255, 0.05);
+      
+      animation: glowPulse 4s ease-in-out infinite;
+    }
+
+    @keyframes glowPulse {
+      0%, 100% {
+        box-shadow: 
+          0 0 20px rgba(0, 212, 255, 0.3),
+          0 0 40px rgba(255, 0, 110, 0.2),
+          0 0 60px rgba(181, 55, 242, 0.1),
+          inset 0 0 20px rgba(0, 212, 255, 0.05);
+      }
+      50% {
+        box-shadow: 
+          0 0 30px rgba(0, 212, 255, 0.4),
+          0 0 60px rgba(255, 0, 110, 0.3),
+          0 0 80px rgba(181, 55, 242, 0.15),
+          inset 0 0 30px rgba(0, 212, 255, 0.08);
+      }
+    }
+
+    /* ON AIR Badge */
+    .on-air-badge {
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      box-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
+      animation: badgePulse 1s ease-in-out infinite;
+    }
+
+    @keyframes badgePulse {
+      0%, 100% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) scale(1.05); }
+    }
+
+    /* Station Name */
+    .station-name {
+      text-align: center;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 32px;
+      font-weight: 900;
+      margin-top: 15px;
+      margin-bottom: 30px;
+      letter-spacing: 3px;
+      color: var(--neon-cyan);
+      text-shadow: 0 0 10px rgba(0, 212, 255, 0.6);
+    }
+
+    /* Banner Background */
+    .current-song-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 15px;
+      overflow: hidden;
+      margin-bottom: 30px;
+      
+      background-size: cover;
+      background-position: center;
+      background: linear-gradient(45deg, var(--secondary-dark), var(--tertiary-dark));
+    }
+
+    .banner-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      z-index: 1;
+      filter: brightness(0.5);
+    }
+
+    /* Icon mit Rotation */
+    .icon-wrapper {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+    }
+
+    .album-icon {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 3px solid var(--neon-cyan);
+      box-shadow: 
+        0 0 20px rgba(0, 212, 255, 0.6),
+        inset 0 0 15px rgba(255, 0, 110, 0.2);
+      object-fit: cover;
+      animation: rotate 20s linear infinite;
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Song Info */
+    .song-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(180deg, transparent, rgba(15, 15, 30, 0.95));
+      padding: 20px;
+      z-index: 3;
+      text-align: center;
+    }
+
+    .song-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--neon-magenta);
+      margin-bottom: 5px;
+      text-shadow: 0 0 10px rgba(255, 0, 110, 0.5);
+    }
+
+    .song-artist {
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 25px;
+    }
+
+    .control-btn {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      border: 2px solid var(--neon-cyan);
+      background: rgba(0, 212, 255, 0.1);
+      color: var(--neon-cyan);
+      cursor: pointer;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+    }
+
+    .control-btn:hover {
+      background: rgba(0, 212, 255, 0.2);
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+      transform: scale(1.1);
+    }
+
+    .control-btn.playing {
+      background: rgba(255, 0, 110, 0.1);
+      border-color: var(--neon-magenta);
+      color: var(--neon-magenta);
+      box-shadow: 0 0 10px rgba(255, 0, 110, 0.3);
+    }
+
+    /* Progress Bar */
+    .progress-section {
+      margin-bottom: 25px;
+    }
+
+    .progress-container {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .time {
+      font-size: 11px;
+      color: var(--text-dim);
+      min-width: 35px;
+      font-family: 'Space Mono', monospace;
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 6px;
+      background: rgba(0, 212, 255, 0.2);
+      border-radius: 3px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 1px solid rgba(0, 212, 255, 0.4);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
+      border-radius: 3px;
+      transition: width 0.1s linear;
+      box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+    }
+
+    /* Volume Section */
+    .volume-section {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    .volume-icon {
+      color: var(--neon-magenta);
+      width: 25px;
+      text-align: center;
+    }
+
+    .volume-slider {
+      flex: 1;
+      height: 6px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: rgba(255, 0, 110, 0.2);
+      border-radius: 3px;
+      outline: none;
+      border: 1px solid rgba(255, 0, 110, 0.4);
+      cursor: pointer;
+    }
+
+    .volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--neon-magenta);
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(255, 0, 110, 0.6);
+    }
+
+    .volume-slider::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--neon-magenta);
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 0 10px rgba(255, 0, 110, 0.6);
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 25px;
+    }
+
+    .action-btn {
+      flex: 1;
+      min-width: 120px;
+      padding: 12px 20px;
+      border: 2px solid var(--neon-magenta);
+      background: rgba(255, 0, 110, 0.1);
+      color: var(--neon-magenta);
+      border-radius: 25px;
+      font-family: 'Space Mono', monospace;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 13px;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(255, 0, 110, 0.2);
+    }
+
+    .action-btn:hover {
+      background: rgba(255, 0, 110, 0.2);
+      box-shadow: 0 0 20px rgba(255, 0, 110, 0.5);
+      transform: translateY(-2px);
+    }
+
+    /* Listeners Counter */
+    .listeners-counter {
+      text-align: center;
+      padding: 12px;
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(181, 55, 242, 0.1));
+      border-radius: 10px;
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      margin-bottom: 15px;
+    }
+
+    .listeners-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .listeners-count {
+      font-size: 24px;
+      font-family: 'Orbitron', sans-serif;
+      color: var(--neon-cyan);
+      margin-top: 5px;
+      text-shadow: 0 0 10px rgba(0, 212, 255, 0.6);
+    }
+
+    .listening-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: var(--neon-magenta);
+      border-radius: 50%;
+      margin-right: 6px;
+      animation: dot-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes dot-pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    /* Next Songs Preview */
+    .next-songs {
+      margin-top: 25px;
+      padding-top: 25px;
+      border-top: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .next-songs-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .song-queue {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .queue-item {
+      padding: 10px;
+      background: rgba(181, 55, 242, 0.05);
+      border: 1px solid rgba(181, 55, 242, 0.2);
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--text-dim);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .queue-item.ad {
+      background: rgba(255, 0, 110, 0.08);
+      border-color: rgba(255, 0, 110, 0.3);
+      color: var(--neon-magenta);
+    }
+
+    .queue-duration {
+      color: var(--neon-cyan);
+      font-size: 11px;
+    }
+
+    /* Audio Element Hidden */
+    audio {
+      display: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .radio-container {
+        padding: 20px;
+      }
+
+      .station-name {
+        font-size: 24px;
+      }
+
+      .song-name {
+        font-size: 16px;
+      }
+
+      .album-icon {
+        width: 100px;
+        height: 100px;
+      }
+
+      .action-btn {
+        min-width: 100px;
+        padding: 10px 15px;
+        font-size: 12px;
+      }
+    }
+
+    /* Loading state */
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    /* Impressum Footer */
+    .footer-links {
+      text-align: center;
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid rgba(0, 212, 255, 0.15);
+    }
+
+    .footer-link {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-decoration: none;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: color 0.2s ease, text-shadow 0.2s ease;
+    }
+
+    .footer-link:hover {
+      color: var(--neon-cyan);
+      text-shadow: 0 0 8px rgba(0, 212, 255, 0.6);
+    }
+  </style>
+</head>
+<body>
+  <div class="radio-container">
+    <div class="on-air-badge">🔴 ON AIR</div>
+    <h1 class="station-name">KITSU_LIVE</h1>
+
+    <div class="current-song-container">
+      <div class="banner-background" id="bannerBg"></div>
+      <div class="icon-wrapper">
+        <img class="album-icon" id="albumIcon" src="" alt="Album Art">
+      </div>
+      <div class="song-info">
+        <div class="song-name" id="songName">Loading...</div>
+        <div class="song-artist" id="songArtist">Synchronizing...</div>
+      </div>
+    </div>
+
+    <div class="listeners-counter">
+      <div class="listeners-label"><span class="listening-dot"></span>Listeners</div>
+      <div class="listeners-count" id="listenerCount">-</div>
+    </div>
+
+    <div class="controls">
+      <button class="control-btn" id="muteBtn" title="Mute">🔊</button>
+    </div>
+
+    <div class="progress-section">
+      <div class="progress-container">
+        <span class="time" id="currentTime">0:00</span>
+        <div class="progress-bar" id="progressBar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <span class="time" id="durationTime">0:00</span>
+      </div>
+    </div>
+
+    <div class="volume-section">
+      <div class="volume-icon">🔊</div>
+      <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="70">
+    </div>
+
+    <div class="action-buttons">
+      <button class="action-btn" id="loveBtn">❤ Favorit</button>
+      <button class="action-btn" id="shareBtn">📤 Teilen</button>
+    </div>
+
+    <div class="next-songs">
+      <div class="next-songs-label">Nächste Songs</div>
+      <div class="song-queue" id="songQueue"></div>
+    </div>
+
+    <div class="footer-links">
+      <a href="impressum.html" class="footer-link">Impressum</a>
+    </div>
+  </div>
+
+  <audio id="audioPlayer" crossorigin="anonymous" preload="auto" controls-list="nodownload"></audio>
+
+  <script>
+    class RadioPlayer {
+      constructor() {
+        this.audio = document.getElementById('audioPlayer');
+        this.muteBtn = document.getElementById('muteBtn');
+        this.volumeSlider = document.getElementById('volumeSlider');
+        this.progressBar = document.getElementById('progressBar');
+        this.progressFill = document.getElementById('progressFill');
+        this.currentTimeEl = document.getElementById('currentTime');
+        this.durationTimeEl = document.getElementById('durationTime');
+        this.songNameEl = document.getElementById('songName');
+        this.songArtistEl = document.getElementById('songArtist');
+        this.albumIcon = document.getElementById('albumIcon');
+        this.bannerBg = document.getElementById('bannerBg');
+        this.listenerCount = document.getElementById('listenerCount');
+        this.songQueue = document.getElementById('songQueue');
+        this.loveBtn = document.getElementById('loveBtn');
+        this.shareBtn = document.getElementById('shareBtn');
+
+        this.currentSong = null;
+        this.isPlaying = false;
+        this.isMuted = false;
+        this.listenerId = this.generateListenerId();
+        this.preloadedAudio = null;
+        this.nextSongs = [];
+        this.syncTimeout = null;
+        this.progressTimer = null;
+        this.listenerTimer = null;
+        this.currentLoadToken = 0;
+        this.currentTrackId = null;
+
+        // Gespeicherte Lautstärke sofort anwenden
+        const savedVolume = localStorage.getItem('volume');
+        if (savedVolume) {
+          const vol = parseFloat(savedVolume);
+          this.audio.volume = vol / 100;
+          this.volumeSlider.value = vol;
+        }
+
+        this.init();
+      }
+
+      // ==================== DEBUG SYSTEM (NUR CONSOLE) ====================
+      debug(message, type = 'INFO') {
+        const timestamp = new Date().toLocaleTimeString();
+        const prefix = {
+          'INFO': 'ℹ️ ',
+          'ERROR': '❌ ',
+          'WARN': '⚠️ ',
+          'SUCCESS': '✅ ',
+          'AUDIO': '🔊 ',
+          'API': '📡 '
+        }[type] || '• ';
+
+        const logMsg = `[${timestamp}] ${prefix}${message}`;
+
+        // Nur zur Browser-Konsole
+        console[type === 'ERROR' ? 'error' : 'log'](logMsg);
+      }
+
+      getAudioStatus() {
+        if (!this.audio) return 'NO AUDIO ELEMENT';
+        return `State: ${['UNSUPPORTED', 'UNINITIALIZED', 'METADATA', 'CURRENT', 'FUTURE'][this.audio.readyState]} | Playing: ${!this.audio.paused} | Duration: ${this.audio.duration?.toFixed(1) || '?'}s | Current: ${this.audio.currentTime?.toFixed(1) || '?'}s | Vol: ${(this.audio.volume * 100).toFixed(0)}%`;
+      }
+
+        generateListenerId() {
+        // Gebe jedem TAB eine eindeutige ID (nicht nur jedem Browser)
+        let sessionId = sessionStorage.getItem('sessionId');
+        if (!sessionId) {
+          sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+          sessionStorage.setItem('sessionId', sessionId);
+          this.debug(`Neue Tab-Session: ${sessionId}`, 'INFO');
+        }
+        
+        let id = localStorage.getItem('listenerId');
+        if (!id) {
+          id = 'listener_' + Math.random().toString(36).substr(2, 9);
+          localStorage.setItem('listenerId', id);
+        }
+        
+        // Kombiniere für diese Session
+        return `${id}_${sessionId.substring(0, 8)}`;
+      }
+
+      async init() {
+        this.debug('🚀 RadioPlayer initialisiert', 'INFO');
+        this.debug(`Audio-Element: ${this.audio ? 'VORHANDEN' : 'FEHLT!'}`, this.audio ? 'SUCCESS' : 'ERROR');
+        
+        try {
+          this.registerListener();
+          await this.loadCurrentSong();
+          this.setupEventListeners();
+          this.startUpdateLoop();
+          this.debug('Initialization erfolgreich', 'SUCCESS');
+        } catch (err) {
+          this.debug(`Init-Fehler: ${err.message}`, 'ERROR');
+        }
+      }
+
+      setupEventListeners() {
+        // Autoplay ohne User-Interaktion mit muted-Trick
+        const startAutoplay = () => {
+          if (this.audio && this.audio.paused) {
+            this.debug('Starte Autoplay mit muted-Trick...', 'AUDIO');
+            this.audio.muted = true;
+            this.audio.play()
+              .then(() => {
+                this.debug('✅ Audio spielt (muted)!', 'SUCCESS');
+                this.isPlaying = true;
+                // Nach kurzem Delay unmute - aber nur wenn User nicht gemuted hat
+                setTimeout(() => {
+                  if (!this.isMuted) {
+                    this.audio.muted = false;
+                    this.debug('Audio unmuted', 'AUDIO');
+                  }
+                }, 100);
+              })
+              .catch(err => {
+                this.debug(`Autoplay Fehler: ${err.message}`, 'WARN');
+                // Fallback: Warte auf User-Interaktion
+                document.addEventListener('click', () => this.tryPlay(), { once: true });
+              });
+          }
+        };
+
+        // Versuche sofort zu spielen
+        setTimeout(startAutoplay, 500);
+
+        // Helper-Funktion für manuelles Play
+        this.tryPlay = () => {
+          if (this.audio && this.audio.paused) {
+            this.audio.play().catch(err => this.debug(`Play Fehler: ${err.message}`, 'WARN'));
+          }
+        };
+
+        this.muteBtn.addEventListener('click', () => this.toggleMute());
+        this.volumeSlider.addEventListener('input', (e) => this.setVolume(e.target.value));
+        this.progressBar.addEventListener('click', (e) => this.seek(e));
+        this.loveBtn.addEventListener('click', () => this.addToFavorites());
+        this.shareBtn.addEventListener('click', () => this.shareSong());
+
+        // Audio Events mit Debugging
+        this.audio.addEventListener('play', () => {
+          this.debug('Audio-Event: PLAY', 'AUDIO');
+          this.isPlaying = true;
+        });
+
+        this.audio.addEventListener('pause', () => {
+          this.debug('Audio-Event: PAUSE', 'AUDIO');
+          this.isPlaying = false;
+        });
+
+        this.audio.addEventListener('ended', () => {
+          this.debug('Audio-Event: ENDED - Lade nächsten Song', 'AUDIO');
+          this.loadCurrentSong();
+        });
+
+        this.audio.addEventListener('error', (e) => {
+          this.debug(`Audio-Error: ${e.target.error?.message || 'Unbekannt'}`, 'ERROR');
+        });
+
+        this.audio.addEventListener('loadstart', () => {
+          this.debug('Audio lädt...', 'AUDIO');
+        });
+
+        this.audio.addEventListener('loadedmetadata', () => {
+          this.debug(`Metadata geladen: ${this.audio.duration.toFixed(1)}s`, 'AUDIO');
+        });
+
+        this.audio.addEventListener('canplay', () => {
+          this.debug('Audio kann abgespielt werden', 'AUDIO');
+        });
+
+        window.addEventListener('beforeunload', () => {
+          this.unregisterListener();
+        });
+      }
+
+      async registerListener() {
+        try {
+          this.debug('Registriere Listener...', 'API');
+          const res = await fetch('/api/listener-join', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: this.listenerId })
+          });
+          const data = await res.json();
+          this.listenerId = data.id;
+          this.debug(`Listener ID: ${this.listenerId}`, 'SUCCESS');
+        } catch (error) {
+          this.debug(`Listener-Fehler: ${error.message}`, 'ERROR');
+        }
+      }
+
+      async unregisterListener() {
+        try {
+          await fetch('/api/listener-leave', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: this.listenerId })
+          });
+        } catch (error) {
+          this.debug(`Fehler beim Abmelden: ${error.message}`, 'WARN');
+        }
+      }
+
+      async loadCurrentSong() {
+        const loadToken = ++this.currentLoadToken;
+        this.debug('Lade aktuellen Song...', 'API');
+
+        try {
+          const res = await fetch('/api/current-song', { cache: 'no-store' });
+          if (!res.ok) {
+            this.debug(`API-Fehler: ${res.status} ${res.statusText}`, 'ERROR');
+            return;
+          }
+
+          const data = await res.json();
+          
+          if (loadToken !== this.currentLoadToken) {
+            this.debug('Load-Token abgelaufen - ignoriere alte Response', 'WARN');
+            return;
+          }
+
+          const trackId = `${data.playlistIndex}_${data.songStartTime}_${data.name}_${data.isAd ? 'ad' : 'song'}`;
+          const type = data.isAd ? 'ads' : 'sfw';
+          const src = `/music/${type}/${data.name}/mp3`;
+          const absoluteSrc = new URL(src, window.location.href).href;
+          const trackChanged = this.currentTrackId !== trackId || this.audio.src !== absoluteSrc;
+
+          this.currentSong = data;
+          this.listenerCount.textContent = data.listeners;
+
+          // Song-Info aktualisieren
+          this.songNameEl.textContent = data.name;
+          this.songArtistEl.textContent = data.isAd ? '[ WERBUNG ]' : 'LIVE TRACK';
+          this.albumIcon.src = `/music/${type}/${data.name}/icon.png`;
+          this.bannerBg.style.backgroundImage = `url('/music/${type}/${data.name}/banner.png')`;
+
+          this.debug(`Song geladen: ${data.name} (${data.isAd ? 'AD' : 'SONG'}) | Time: ${data.timeIntoSong?.toFixed(1) || '?'}s`, 'SUCCESS');
+
+          if (!trackChanged && this.audio.readyState >= 1) {
+            this.debug('Track nicht geändert - update nur Zeit', 'INFO');
+            const duration = this.audio.duration && this.audio.duration > 0
+              ? this.audio.duration
+              : (this.currentSong?.duration || 180);
+
+            const desiredTime = Math.max(0, Math.min(data.timeIntoSong || 0, Math.max(0, duration - 0.05)));
+            try {
+              if (Math.abs((this.audio.currentTime || 0) - desiredTime) > 0.75) {
+                this.audio.currentTime = desiredTime;
+                this.debug(`Setze Zeit auf ${desiredTime.toFixed(1)}s`, 'AUDIO');
+              }
+            } catch (seekError) {
+              this.debug(`Seek-Fehler: ${seekError.message}`, 'WARN');
+            }
+
+            this.currentTrackId = trackId;
+            this.isPlaying = !this.audio.paused;
+            this.updateProgress();
+            this.scheduleResync();
+            return;
+          }
+
+          if (this.syncTimeout) {
+            clearTimeout(this.syncTimeout);
+            this.syncTimeout = null;
+          }
+
+          // Audio neu laden
+          this.debug(`Lade Audio-URL: ${src}`, 'AUDIO');
+          this.audio.src = absoluteSrc;
+          
+          // Wichtig: Setze Volume wieder zurück
+          const savedVolume = localStorage.getItem('volume');
+          if (savedVolume) {
+            this.audio.volume = parseFloat(savedVolume) / 100;
+            this.debug(`Volume wiederhergestellt: ${savedVolume}%`, 'AUDIO');
+          }
+
+          this.audio.load();
+          this.debug('Audio.load() aufgerufen', 'AUDIO');
+
+          const onLoadedMetadata = async () => {
+            if (loadToken !== this.currentLoadToken) {
+              this.debug('Metadata-Callback: Token abgelaufen', 'WARN');
+              return;
+            }
+
+            this.debug(`Metadata geladen: ${this.audio.duration.toFixed(1)}s`, 'SUCCESS');
+
+            const realDuration = this.audio.duration;
+
+            // Auf Server echte Dauer melden
+            if (realDuration && realDuration > 0) {
+              this.currentSong.duration = realDuration;
+
+              fetch('/api/update-duration', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  songName: data.name,
+                  isAd: data.isAd,
+                  duration: realDuration
+                })
+              }).catch(err => this.debug(`Fehler beim Senden der Dauer: ${err}`, 'WARN'));
+            }
+
+            // WICHTIG: Setze die Zeit RICHTIG (BEVOR Play)
+            const safeTime = Math.max(0, data.timeIntoSong || 0);
+            
+            try {
+              // Stelle sicher, dass die Zeit vor dem Play gesetzt wird
+              if (realDuration && realDuration > 0) {
+                const maxSeek = Math.max(0, realDuration - 0.5);
+                const targetTime = Math.min(safeTime, maxSeek);
+                
+                this.audio.currentTime = targetTime;
+                this.debug(`⏱️ Zeit gesetzt: ${targetTime.toFixed(2)}s / ${realDuration.toFixed(2)}s`, 'AUDIO');
+              } else {
+                this.audio.currentTime = 0;
+              }
+            } catch (seekError) {
+              this.debug(`Seek-Fehler: ${seekError.message}`, 'WARN');
+              this.audio.currentTime = 0;
+            }
+
+            this.currentTrackId = trackId;
+
+            // WICHTIG: AUTOPLAY MIT MUTED-TRICK (funktioniert immer!)
+            try {
+              this.debug('Versuche Audio abzuspielen mit muted-Trick...', 'AUDIO');
+              
+              // Trick: Mute und Play zusammen funktioniert oft ohne Browser-Blockierung
+              // ABER: Wenn User bereits gemuted hat, bleibt es gemuted!
+              const wasUserMuted = this.isMuted;
+              this.audio.muted = true;
+              const playPromise = this.audio.play();
+              
+              if (playPromise !== undefined) {
+                playPromise
+                  .then(() => {
+                    this.debug('✅ Audio spielt jetzt ab!', 'SUCCESS');
+                    this.isPlaying = true;
+                    
+                    // Unmute nach kurzer Verzögerung - aber nur wenn User nicht gemuted hat
+                    setTimeout(() => {
+                      if (!wasUserMuted) {
+                        this.audio.muted = false;
+                        const vol = localStorage.getItem('volume');
+                        if (vol) {
+                          this.audio.volume = parseFloat(vol) / 100;
+                        }
+                        this.debug('🔊 Audio unmuted', 'AUDIO');
+                      } else {
+                        // User hat muted: Muted-Status beibehalten, Icon korrekt anzeigen
+                        this.audio.muted = true;
+                        this.muteBtn.textContent = '🔇';
+                        this.debug('🔇 Muted-Status beibehalten (User hat gemuted)', 'AUDIO');
+                      }
+                    }, 150);
+                  })
+                  .catch(err => {
+                    this.debug(`Autoplay Fehler: ${err.name} - ${err.message}`, 'WARN');
+                    this.isPlaying = false;
+                  });
+              }
+            } catch (err) {
+              this.debug(`Play-Exception: ${err.message}`, 'ERROR');
+              this.isPlaying = false;
+            }
+
+            await this.loadNextSongs();
+            this.scheduleNextSongPreload();
+            this.scheduleResync();
+          };
+
+          this.audio.addEventListener('loadedmetadata', onLoadedMetadata, { once: true });
+
+          // Falls Metadata bereits da ist, triggere Event manuell
+          if (this.audio.readyState >= 1) {
+            this.debug('Metadata bereits geladen - dispatch manuell', 'INFO');
+            this.audio.dispatchEvent(new Event('loadedmetadata'));
+          }
+
+        } catch (error) {
+          this.debug(`loadCurrentSong Fehler: ${error.message}`, 'ERROR');
+        }
+      }
+
+      async loadNextSongs() {
+        try {
+          this.debug('Lade nächste Songs...', 'API');
+          const res = await fetch('/api/next-songs');
+          if (!res.ok) {
+            this.debug(`API-Fehler beim Laden der nächsten Songs: ${res.status}`, 'WARN');
+            return;
+          }
+          this.nextSongs = await res.json();
+          this.debug(`${this.nextSongs.length} nächste Songs geladen`, 'SUCCESS');
+          this.updateSongQueue();
+        } catch (error) {
+          this.debug(`Fehler beim Laden der nächsten Songs: ${error.message}`, 'ERROR');
+        }
+      }
+
+      updateSongQueue() {
+        this.songQueue.innerHTML = '';
+        this.nextSongs.forEach((song, index) => {
+          const div = document.createElement('div');
+          div.className = `queue-item ${song.isAd ? 'ad' : ''}`;
+          const duration = this.formatTime(song.duration);
+          div.innerHTML = `
+            <span>${index + 1}. ${song.name} ${song.isAd ? '[AD]' : ''}</span>
+            <span class="queue-duration">${duration}</span>
+          `;
+          this.songQueue.appendChild(div);
+        });
+      }
+
+      scheduleNextSongPreload() {
+        // Nutze die echte Dauer vom Audio-Element wenn verfügbar
+        const duration = this.audio.duration && this.audio.duration > 0 
+          ? this.audio.duration 
+          : (this.currentSong?.duration || 180);
+        
+        const preloadTime = (duration - 30) * 1000; // 30 Sekunden vorher
+
+        if (this.preloadTimeout) {
+          clearTimeout(this.preloadTimeout);
+        }
+
+        this.preloadTimeout = setTimeout(() => {
+          if (this.nextSongs.length > 0) {
+            const nextSong = this.nextSongs[0];
+            const type = nextSong.isAd ? 'ads' : 'sfw';
+            const src = `/music/${type}/${nextSong.name}/mp3`;
+            
+            if (!this.preloadedAudio) {
+              this.preloadedAudio = new Audio();
+            }
+            this.preloadedAudio.src = src;
+            this.debug(`Preload: ${nextSong.name}`, 'AUDIO');
+          }
+        }, Math.max(0, preloadTime));
+      }
+
+      togglePlay() {
+        this.debug(`togglePlay: ${this.isPlaying ? 'PAUSE' : 'PLAY'}`, 'AUDIO');
+        
+        if (!this.audio) {
+          this.debug('Audio-Element nicht vorhanden!', 'ERROR');
+          return;
+        }
+
+        if (this.isPlaying) {
+          this.audio.pause();
+          this.isPlaying = false;
+          this.debug('Audio pausiert', 'AUDIO');
+        } else {
+          const playPromise = this.audio.play();
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => {
+                this.isPlaying = true;
+                this.debug('Audio spielt ab', 'SUCCESS');
+              })
+              .catch(err => {
+                this.debug(`Play-Fehler: ${err.message}`, 'ERROR');
+                this.isPlaying = false;
+              });
+          }
+        }
+      }
+
+      toggleMute() {
+        this.isMuted = !this.isMuted;
+        this.audio.muted = this.isMuted;
+        this.muteBtn.textContent = this.isMuted ? '🔇' : '🔊';
+        this.debug(`Muted: ${this.isMuted}`, 'AUDIO');
+      }
+
+      skipSong() {
+        // In Echtzeit-Radio nicht verfügbar
+        this.debug('Skip versucht - nicht in Live-Radio möglich', 'WARN');
+        alert('In einer Live-Radio kann man nicht skippen! 🎵');
+      }
+
+      setVolume(value) {
+        const volume = Math.max(0, Math.min(100, parseInt(value)));
+        this.audio.volume = volume / 100;
+        localStorage.setItem('volume', volume.toString());
+        this.debug(`Volume: ${volume}%`, 'AUDIO');
+      }
+
+      seek(e) {
+        // In Echtzeit-Radio nicht verfügbar - aber UI-Element für Konsistenz
+        const rect = this.progressBar.getBoundingClientRect();
+        const percent = (e.clientX - rect.left) / rect.width;
+        // Nur zur Info anzeigen, aber nicht ändern
+        this.debug('Seek-Versuch in Live-Radio - nicht möglich', 'WARN');
+      }
+
+      scheduleResync() {
+        if (this.syncTimeout) {
+          clearTimeout(this.syncTimeout);
+          this.syncTimeout = null;
+        }
+
+        const duration = Number.isFinite(this.audio.duration) && this.audio.duration > 0
+          ? this.audio.duration
+          : (this.currentSong?.duration || 180);
+
+        const currentTime = Number.isFinite(this.audio.currentTime) ? this.audio.currentTime : 0;
+        const remainingSeconds = Math.max(1, duration - currentTime - 0.5);
+
+        this.syncTimeout = setTimeout(() => {
+          this.loadCurrentSong();
+        }, remainingSeconds * 1000);
+      }
+
+
+      addToFavorites() {
+        if (this.currentSong) {
+          let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+          const songId = `${this.currentSong.name}_${this.currentSong.isAd}`;
+          
+          if (!favorites.includes(songId)) {
+            favorites.push(songId);
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            this.loveBtn.textContent = '💖 In Favoriten';
+            this.debug(`Song zu Favoriten hinzugefügt: ${this.currentSong.name}`, 'SUCCESS');
+          } else {
+            this.debug(`${this.currentSong.name} ist bereits in Favoriten`, 'INFO');
+          }
+        }
+      }
+
+      shareSong() {
+        if (this.currentSong) {
+          const text = `🎵 Gerade läuft auf KITSU_LIVE: ${this.currentSong.name}`;
+          if (navigator.share) {
+            navigator.share({ title: 'KITSU_LIVE', text: text });
+            this.debug('Song geteilt', 'SUCCESS');
+          } else {
+            navigator.clipboard.writeText(text);
+            this.debug('Text in Zwischenablage kopiert', 'SUCCESS');
+            alert('In die Zwischenablage kopiert!');
+          }
+        }
+      }
+
+      async updateListeners() {
+        try {
+          const res = await fetch('/api/listeners');
+          if (!res.ok) {
+            this.debug(`API-Fehler beim Abrufen der Listener: ${res.status}`, 'WARN');
+            return;
+          }
+          const data = await res.json();
+          this.listenerCount.textContent = data.listeners;
+        } catch (error) {
+          this.debug(`Fehler beim Abrufen der Listener: ${error.message}`, 'WARN');
+        }
+      }
+
+      updateProgress() {
+        const duration = this.audio.duration;
+        const currentTime = this.audio.currentTime;
+
+        if (duration > 0) {
+          const progress = (currentTime / duration) * 100;
+          this.progressFill.style.width = progress + '%';
+          
+          this.currentTimeEl.textContent = this.formatTime(currentTime);
+          this.durationTimeEl.textContent = this.formatTime(duration);
+
+          // Der Wechsel zum nächsten Lied passiert über den Sync-Timer und das ended-Event.
+        }
+      }
+
+      formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+      }
+
+      async startUpdateLoop() {
+        if (this.progressTimer) clearInterval(this.progressTimer);
+        if (this.listenerTimer) clearInterval(this.listenerTimer);
+
+        this.progressTimer = setInterval(() => {
+          this.updateProgress();
+        }, 1000);
+
+        this.listenerTimer = setInterval(() => {
+          this.updateListeners();
+        }, 10000);
+      }
+    }
+
+    // App starten
+    document.addEventListener('DOMContentLoaded', () => {
+      new RadioPlayer();
+    });
+  </script>
+</body>
+</html>
