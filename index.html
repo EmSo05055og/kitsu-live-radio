@@ -25,7 +25,7 @@
     }
 
     body {
-      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
+      background: url('background.png') center center / cover no-repeat fixed;
       color: var(--text-light);
       font-family: 'Space Mono', monospace;
       min-height: 100vh;
@@ -36,24 +36,122 @@
       overflow-x: hidden;
     }
 
-    .radio-container {
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 5, 18, 0.42);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ===== ANIMIERTER RAND via SVG – konstante Pixel-Geschwindigkeit ===== */
+    .radio-border-wrapper {
+      position: relative;
       width: 100%;
       max-width: 500px;
-      background: rgba(26, 26, 46, 0.8);
-      border: 2px solid var(--neon-cyan);
+      border-radius: 22px;
+      padding: 2px;
+      z-index: 1;
+      background: transparent;
+      box-shadow:
+        0 0 20px rgba(0, 212, 255, 0.3),
+        0 0 40px rgba(255, 0, 110, 0.2),
+        0 0 60px rgba(181, 55, 242, 0.1);
+      transition: box-shadow 0.08s ease-out;
+      animation: glowPulse 4s ease-in-out infinite;
+    }
+
+    /* SVG-Rand liegt über allem, kein pointer-events */
+    .border-anim {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .b-base {
+      fill: none;
+      stroke: var(--neon-cyan);
+      stroke-width: 2;
+    }
+
+    /* Gradient-Schichten: dynamisch via JS erzeugt */
+    .b-layer {
+      fill: none;
+      stroke-linecap: round;
+    }
+
+    /* ===== FEEDBACK MODAL ===== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal-box {
+      background: #12122a;
+      border: 1px solid var(--neon-cyan);
+      border-radius: 16px;
+      padding: 28px 24px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 0 40px rgba(0,212,255,0.25);
+      animation: modalIn 0.2s ease-out;
+    }
+    @keyframes modalIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+    .modal-title { font-size: 16px; font-weight: bold; color: var(--neon-cyan); margin-bottom: 6px; }
+    .modal-sub   { font-size: 11px; color: var(--text-dim); margin-bottom: 16px; }
+    .modal-textarea {
+      width: 100%;
+      min-height: 110px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(0,212,255,0.3);
+      border-radius: 8px;
+      color: #fff;
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      padding: 10px;
+      resize: vertical;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .modal-textarea:focus { border-color: var(--neon-cyan); }
+    .modal-actions { display: flex; gap: 10px; margin-top: 14px; justify-content: flex-end; }
+    .modal-btn {
+      padding: 8px 18px;
+      border-radius: 8px;
+      border: none;
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .modal-btn:hover { opacity: 0.8; }
+    .modal-btn-cancel { background: rgba(255,255,255,0.08); color: var(--text-dim); }
+    .modal-btn-send   { background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple)); color: #fff; font-weight: bold; }
+
+    .radio-container {
+      width: 100%;
+      background: #1a1a2e;
+      border: none;
       border-radius: 20px;
       padding: 30px;
       position: relative;
       backdrop-filter: blur(10px);
-      
-      /* Neon Glow Effekt */
-      box-shadow: 
-        0 0 20px rgba(0, 212, 255, 0.3),
-        0 0 40px rgba(255, 0, 110, 0.2),
-        0 0 60px rgba(181, 55, 242, 0.1),
-        inset 0 0 20px rgba(0, 212, 255, 0.05);
-      
-      animation: glowPulse 4s ease-in-out infinite;
     }
 
     @keyframes glowPulse {
@@ -61,24 +159,26 @@
         box-shadow: 
           0 0 20px rgba(0, 212, 255, 0.3),
           0 0 40px rgba(255, 0, 110, 0.2),
-          0 0 60px rgba(181, 55, 242, 0.1),
-          inset 0 0 20px rgba(0, 212, 255, 0.05);
+          0 0 60px rgba(181, 55, 242, 0.1);
       }
       50% {
         box-shadow: 
           0 0 30px rgba(0, 212, 255, 0.4),
           0 0 60px rgba(255, 0, 110, 0.3),
-          0 0 80px rgba(181, 55, 242, 0.15),
-          inset 0 0 30px rgba(0, 212, 255, 0.08);
+          0 0 80px rgba(181, 55, 242, 0.15);
       }
     }
 
     /* ON AIR Badge */
-    .on-air-badge {
+    .on-air-wrapper {
       position: absolute;
       top: -15px;
       left: 50%;
       transform: translateX(-50%);
+      z-index: 10;
+    }
+
+    .on-air-badge {
       background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
       padding: 6px 16px;
       border-radius: 20px;
@@ -88,11 +188,12 @@
       letter-spacing: 2px;
       box-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
       animation: badgePulse 1s ease-in-out infinite;
+      white-space: nowrap;
     }
 
     @keyframes badgePulse {
-      0%, 100% { transform: translateX(-50%) scale(1); }
-      50% { transform: translateX(-50%) scale(1.05); }
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(1.05); }
     }
 
     /* Station Name */
@@ -569,6 +670,23 @@
       color: var(--neon-cyan);
       text-shadow: 0 0 8px rgba(0, 212, 255, 0.6);
     }
+
+    /* Credit Signatur */
+    .credit-text {
+      text-align: center;
+      margin-top: 8px;
+      font-size: 9px;
+      color: rgba(181, 55, 242, 0.45);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-family: 'Space Mono', monospace;
+      transition: color 0.3s ease;
+    }
+
+    .credit-text:hover {
+      color: rgba(181, 55, 242, 0.85);
+      text-shadow: 0 0 6px rgba(181, 55, 242, 0.4);
+    }
   </style>
 </head>
 <body>
@@ -583,8 +701,14 @@
     </div>
   </div>
 
-  <div class="radio-container">
-    <div class="on-air-badge">🔴 ON AIR</div>
+  <div class="radio-border-wrapper">
+    <svg class="border-anim" aria-hidden="true">
+      <rect class="b-base"/>
+    </svg>
+    <div class="on-air-wrapper">
+      <div class="on-air-badge">🔴 ON AIR</div>
+    </div>
+    <div class="radio-container">
     <h1 class="station-name">KITSU_LIVE</h1>
 
     <div class="current-song-container">
@@ -623,8 +747,21 @@
     </div>
 
     <div class="action-buttons">
-      <button class="action-btn" id="loveBtn">❤ Favorit</button>
+      <button class="action-btn" id="feedbackBtn">💬 Feedback</button>
       <button class="action-btn" id="shareBtn">📤 Teilen</button>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div class="modal-overlay" id="feedbackModal">
+      <div class="modal-box">
+        <div class="modal-title">💬 Feedback senden</div>
+        <div class="modal-sub">Dein Feedback wird direkt ans Team gesendet.</div>
+        <textarea class="modal-textarea" id="feedbackText" placeholder="Schreib dein Feedback hier..."></textarea>
+        <div class="modal-actions">
+          <button class="modal-btn modal-btn-cancel" id="feedbackCancel">Abbrechen</button>
+          <button class="modal-btn modal-btn-send" id="feedbackSend">Senden 🚀</button>
+        </div>
+      </div>
     </div>
 
     <div class="next-songs">
@@ -635,7 +772,9 @@
     <div class="footer-links">
       <a href="impressum.html" class="footer-link">Impressum</a>
     </div>
-  </div>
+    <div class="credit-text">gecodet von EmSo05055og</div>
+  </div><!-- /radio-container -->
+  </div><!-- /radio-border-wrapper -->
 
   <audio id="audioPlayer" crossorigin="anonymous" preload="auto" controls-list="nodownload"></audio>
 
@@ -655,7 +794,10 @@
         this.bannerBg = document.getElementById('bannerBg');
         this.listenerCount = document.getElementById('listenerCount');
         this.songQueue = document.getElementById('songQueue');
-        this.loveBtn = document.getElementById('loveBtn');
+        this.loveBtn      = null; // entfernt
+        this.feedbackBtn  = document.getElementById('feedbackBtn');
+        this.feedbackModal= document.getElementById('feedbackModal');
+        this.feedbackText = document.getElementById('feedbackText');
         this.shareBtn = document.getElementById('shareBtn');
 
         this.currentSong = null;
@@ -669,6 +811,14 @@
         this.listenerTimer = null;
         this.currentLoadToken = 0;
         this.currentTrackId = null;
+
+      // Bass Analyzer Setup
+        this.audioCtx = null;
+        this.analyser = null;
+        this.bassData = new Uint8Array(4);
+        this.radioContainer = document.querySelector('.radio-border-wrapper');
+        this.radioInner = document.querySelector('.radio-container');
+        this.bassAnimFrame = null;
 
         // Gespeicherte Lautstärke sofort anwenden
         const savedVolume = localStorage.getItem('volume');
@@ -726,7 +876,10 @@
       async init() {
         this.debug('🚀 RadioPlayer initialisiert', 'INFO');
         this.debug(`Audio-Element: ${this.audio ? 'VORHANDEN' : 'FEHLT!'}`, this.audio ? 'SUCCESS' : 'ERROR');
-        
+
+        // Rand-Animation: unabhängig vom Server sofort starten
+        this.setupBorderSVG();
+
         try {
           this.registerListener();
           await this.loadCurrentSong();
@@ -735,6 +888,7 @@
           this.debug('Initialization erfolgreich', 'SUCCESS');
         } catch (err) {
           this.debug(`Init-Fehler: ${err.message}`, 'ERROR');
+          this.setupEventListeners(); // Event-Listener auch ohne Server aktivieren
         }
       }
 
@@ -765,8 +919,25 @@
         this.muteBtn.addEventListener('click', () => this.toggleMute());
         this.volumeSlider.addEventListener('input', (e) => this.setVolume(e.target.value));
         this.progressBar.addEventListener('click', (e) => this.seek(e));
-        this.loveBtn.addEventListener('click', () => this.addToFavorites());
+        if (this.feedbackBtn) {
+          this.feedbackBtn.addEventListener('click', () => this.openFeedback());
+        }
+        document.getElementById('feedbackCancel')?.addEventListener('click', () => this.closeFeedback());
+        document.getElementById('feedbackSend')?.addEventListener('click', () => this.sendFeedback());
+        this.feedbackModal?.addEventListener('click', (e) => {
+          if (e.target === this.feedbackModal) this.closeFeedback();
+        });
+
         this.shareBtn.addEventListener('click', () => this.shareSong());
+
+        // Mobile Fix: AudioContext + Wiedergabe nach Tab-Wechsel wieder aufnehmen
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) return;
+          if (this.audioCtx?.state === 'suspended') this.audioCtx.resume();
+          if (this.isPlaying && this.audio.paused) {
+            this.audio.play().catch(() => {});
+          }
+        });
 
         // Audio Events mit Debugging
         this.audio.addEventListener('play', () => {
@@ -834,6 +1005,11 @@
       }
 
       async loadCurrentSong() {
+        if (this.isLoading) {
+          this.debug('Ladevorgang bereits aktiv – übersprungen', 'WARN');
+          return;
+        }
+        this.isLoading = true;
         const loadToken = ++this.currentLoadToken;
         this.debug('Lade aktuellen Song...', 'API');
 
@@ -967,6 +1143,7 @@
                   .then(() => {
                     this.debug('✅ Audio spielt jetzt ab!', 'SUCCESS');
                     this.isPlaying = true;
+                    this.setupBassAnalyzer();
                   })
                   .catch(err => {
                     this.debug(`Autoplay Fehler: ${err.name} - ${err.message}`, 'WARN');
@@ -994,6 +1171,8 @@
 
         } catch (error) {
           this.debug(`loadCurrentSong Fehler: ${error.message}`, 'ERROR');
+        } finally {
+          this.isLoading = false;
         }
       }
 
@@ -1073,6 +1252,7 @@
               .then(() => {
                 this.isPlaying = true;
                 this.debug('Audio spielt ab', 'SUCCESS');
+                this.setupBassAnalyzer();
               })
               .catch(err => {
                 this.debug(`Play-Fehler: ${err.message}`, 'ERROR');
@@ -1129,19 +1309,58 @@
       }
 
 
-      addToFavorites() {
-        if (this.currentSong) {
-          let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-          const songId = `${this.currentSong.name}_${this.currentSong.isAd}`;
-          
-          if (!favorites.includes(songId)) {
-            favorites.push(songId);
-            localStorage.setItem('favorites', JSON.stringify(favorites));
-            this.loveBtn.textContent = '💖 In Favoriten';
-            this.debug(`Song zu Favoriten hinzugefügt: ${this.currentSong.name}`, 'SUCCESS');
-          } else {
-            this.debug(`${this.currentSong.name} ist bereits in Favoriten`, 'INFO');
+      // ==================== FEEDBACK ====================
+      // Discord Webhook URL hier eintragen:
+      static get WEBHOOK_URL() { return 'DEINE_DISCORD_WEBHOOK_URL_HIER'; }
+
+      openFeedback() {
+        this.feedbackModal?.classList.add('open');
+        setTimeout(() => this.feedbackText?.focus(), 50);
+      }
+
+      closeFeedback() {
+        this.feedbackModal?.classList.remove('open');
+        if (this.feedbackText) this.feedbackText.value = '';
+      }
+
+      async sendFeedback() {
+        const text = this.feedbackText?.value?.trim();
+        if (!text) {
+          if (this.feedbackText) {
+            this.feedbackText.style.borderColor = '#ff4466';
+            setTimeout(() => { if(this.feedbackText) this.feedbackText.style.borderColor=''; }, 800);
           }
+          return;
+        }
+        const sendBtn = document.getElementById('feedbackSend');
+        if (sendBtn) { sendBtn.textContent = 'Sende…'; sendBtn.disabled = true; }
+        try {
+          const song = this.currentSong;
+          const payload = {
+            username: 'Kitsu Radio',
+            embeds: [{
+              title: '📩 Neues Listener-Feedback',
+              description: text,
+              color: 0xb537f2,
+              fields: song ? [{ name: 'Aktueller Song', value: `${song.name}${song.artist ? ' – '+song.artist : ''}`, inline: true }] : [],
+              timestamp: new Date().toISOString(),
+              footer: { text: 'Kitsu Radio Feedback' }
+            }]
+          };
+          const res = await fetch(RadioPlayer.WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (res.ok || res.status === 204) {
+            if (sendBtn) sendBtn.textContent = '✅ Gesendet!';
+            setTimeout(() => this.closeFeedback(), 1200);
+          } else throw new Error(`HTTP ${res.status}`);
+        } catch (err) {
+          this.debug(`Feedback-Fehler: ${err.message}`, 'ERROR');
+          if (sendBtn) sendBtn.textContent = '❌ Fehler – nochmal versuchen';
+        } finally {
+          setTimeout(() => { if(sendBtn){sendBtn.textContent='Senden 🚀';sendBtn.disabled=false;} }, 2200);
         }
       }
 
@@ -1186,6 +1405,157 @@
 
           // Der Wechsel zum nächsten Lied passiert über den Sync-Timer und das ended-Event.
         }
+      }
+
+      // ==================== SVG RAND ANIMATION ====================
+      setupBorderSVG() {
+        const wrapper = document.querySelector('.radio-border-wrapper');
+        const svg     = document.querySelector('.border-anim');
+        if (!svg || !wrapper) return;
+
+        // Farb-Interpolation Cyan → Lila
+        const cA = [0, 212, 255];   // Cyan  #00d4ff
+        const cB = [217, 102, 255]; // Lila  #d966ff
+        const lerpRGB = t => {
+          const r = Math.round(cA[0] + (cB[0]-cA[0]) * t);
+          const g = Math.round(cA[1] + (cB[1]-cA[1]) * t);
+          const b = Math.round(cA[2] + (cB[2]-cA[2]) * t);
+          return `rgb(${r},${g},${b})`;
+        };
+
+        // 10 Schichten – kosinusförmige Opazität, Farbe von Cyan bis Lila
+        const NUM    = 10;
+        const coreL  = 12;   // Kern-Länge in px
+        const totalL = 90;   // Äußerste Schicht in px
+
+        const layers = Array.from({ length: NUM }, (_, i) => {
+          const t       = (i + 1) / NUM;                       // 0.1 … 1.0
+          const opacity = (1 - Math.cos(Math.PI * t)) / 2;    // Kosinus 0→1
+          const len     = Math.round(totalL - (totalL - coreL) * t);
+          const color   = lerpRGB(t);
+          return { t, opacity, len, color };
+        });
+
+        const apply = () => {
+          const w  = wrapper.offsetWidth;
+          const h  = wrapper.offsetHeight;
+          if (!w || !h) return; // Layout noch nicht fertig
+
+          const r  = 20, hw = 1.5;
+          svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+
+          // Basis-Rand positionieren
+          const base = svg.querySelector('.b-base');
+          if (base) {
+            base.setAttribute('x', hw); base.setAttribute('y', hw);
+            base.setAttribute('width', w - hw*2); base.setAttribute('height', h - hw*2);
+            base.setAttribute('rx', r); base.setAttribute('ry', r);
+          }
+
+          // Alte Schichten entfernen und neu aufbauen
+          svg.querySelectorAll('.b-layer').forEach(el => el.remove());
+
+          const rw = w - hw*2, rh = h - hw*2;
+          const perimeter = 2*(rw + rh - 4*r) + 2*Math.PI*r;
+          const dur = (perimeter / 120).toFixed(2); // 120 px/s
+
+          let kf = '';
+          layers.forEach(({ opacity, len, color }, idx) => {
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.classList.add('b-layer');
+            rect.setAttribute('x',      hw);
+            rect.setAttribute('y',      hw);
+            rect.setAttribute('width',  w - hw*2);
+            rect.setAttribute('height', h - hw*2);
+            rect.setAttribute('rx', r); rect.setAttribute('ry', r);
+            rect.setAttribute('fill', 'none');
+            rect.setAttribute('stroke', color);
+            rect.setAttribute('stroke-width', idx === NUM-1 ? '2.5' : '3');
+            rect.setAttribute('stroke-linecap', 'round');
+            rect.style.opacity = opacity.toFixed(3);
+
+            // Dasharray + Zentrierung
+            const gap  = perimeter - len;
+            const sOff = ((len - coreL) / 2).toFixed(2);
+            const eOff = (parseFloat(sOff) - perimeter).toFixed(2);
+            rect.setAttribute('stroke-dasharray', `${len} ${gap.toFixed(1)}`);
+
+            const kfName = `bml${idx}`;
+            kf += `@keyframes ${kfName}{from{stroke-dashoffset:${sOff}}to{stroke-dashoffset:${eOff}}}\n`;
+            rect.style.animation = `${kfName} ${dur}s linear infinite`;
+
+            // Glow auf dem Kern
+            if (idx === NUM-1) rect.setAttribute('filter', 'url(#stripeGlow)');
+
+            svg.appendChild(rect);
+          });
+
+          // Keyframes + Glow-Filter injizieren
+          let styleEl = document.getElementById('borderMoveKF');
+          if (!styleEl) { styleEl = document.createElement('style'); styleEl.id='borderMoveKF'; document.head.appendChild(styleEl); }
+          styleEl.textContent = kf;
+
+          // SVG-Filter für Glow (einmalig)
+          if (!svg.querySelector('defs')) {
+            svg.insertAdjacentHTML('afterbegin',
+              `<defs><filter id="stripeGlow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter></defs>`);
+          }
+        };
+
+        const ro = new ResizeObserver(() => apply());
+        ro.observe(wrapper);
+        requestAnimationFrame(() => { apply(); setTimeout(apply, 200); });
+      }
+
+      // ==================== BASS VISUALIZER ====================
+      setupBassAnalyzer() {
+        try {
+          if (this.audioCtx) return; // already set up
+          this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const source = this.audioCtx.createMediaElementSource(this.audio);
+          this.analyser = this.audioCtx.createAnalyser();
+          this.analyser.fftSize = 64;
+          this.analyser.smoothingTimeConstant = 0.75;
+          source.connect(this.analyser);
+          this.analyser.connect(this.audioCtx.destination);
+          this.bassData = new Uint8Array(this.analyser.frequencyBinCount);
+          this.debug('Bass-Analyzer gestartet', 'SUCCESS');
+          this.runBassLoop();
+        } catch (e) {
+          this.debug(`Bass-Analyzer Fehler: ${e.message}`, 'WARN');
+        }
+      }
+
+      runBassLoop() {
+        const loop = () => {
+          this.bassAnimFrame = requestAnimationFrame(loop);
+          if (!this.analyser || !this.radioContainer) return;
+
+          this.analyser.getByteFrequencyData(this.bassData);
+
+          // Tiefe Frequenzen (Bins 0-3 entsprechen ca. 0-700 Hz bei fftSize 64)
+          const bassAvg = (this.bassData[0] + this.bassData[1] + this.bassData[2] + this.bassData[3]) / 4;
+          const normalized = bassAvg / 255; // 0..1
+
+          // Schatten-Intensität skaliert mit Bass
+          const cyanAlpha  = 0.3 + normalized * 0.55;
+          const magAlpha   = 0.2 + normalized * 0.5;
+          const purpAlpha  = 0.1 + normalized * 0.35;
+          const spread1    = Math.round(20 + normalized * 50);
+          const spread2    = Math.round(40 + normalized * 80);
+          const spread3    = Math.round(60 + normalized * 120);
+          const scale      = 1 + normalized * 0.012;
+
+          this.radioContainer.style.boxShadow = `
+            0 0 ${spread1}px rgba(0, 212, 255, ${cyanAlpha.toFixed(2)}),
+            0 0 ${spread2}px rgba(255, 0, 110, ${magAlpha.toFixed(2)}),
+            0 0 ${spread3}px rgba(181, 55, 242, ${purpAlpha.toFixed(2)})
+          `;
+        };
+        loop();
       }
 
       formatTime(seconds) {
