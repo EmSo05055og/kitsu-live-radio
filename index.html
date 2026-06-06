@@ -59,7 +59,7 @@
         0 0 40px rgba(255, 0, 110, 0.2),
         0 0 60px rgba(181, 55, 242, 0.1);
       transition: box-shadow 0.08s ease-out;
-      animation: glowPulse 4s ease-in-out infinite;
+      /* glowPulse entfernt – Bass-JS steuert box-shadow direkt */
     }
 
     /* SVG-Rand liegt über allem, kein pointer-events */
@@ -879,6 +879,8 @@
 
         // Rand-Animation: unabhängig vom Server sofort starten
         this.setupBorderSVG();
+        // Bass-Loop sofort starten für Ambient-Glow (auch ohne Musik)
+        this.runBassLoop();
 
         try {
           this.registerListener();
@@ -898,6 +900,9 @@
         const startBtn = document.getElementById('startBtn');
 
         const startRadio = () => {
+          // AudioContext MUSS synchron im Click-Handler erstellt werden (Browser-Sicherheit)
+          this.setupBassAnalyzer();
+
           // Overlay ausblenden
           overlay.classList.add('hidden');
           setTimeout(() => overlay.style.display = 'none', 500);
@@ -1530,30 +1535,34 @@
       }
 
       runBassLoop() {
+        const idleGlow = `0 0 20px rgba(0,212,255,0.3),0 0 40px rgba(255,0,110,0.2),0 0 60px rgba(181,55,242,0.1)`;
         const loop = () => {
           this.bassAnimFrame = requestAnimationFrame(loop);
-          if (!this.analyser || !this.radioContainer) return;
+          if (!this.radioContainer) return;
+
+          if (!this.analyser) {
+            // Kein Analyzer aktiv – statischer Ambient-Glow
+            this.radioContainer.style.boxShadow = idleGlow;
+            return;
+          }
 
           this.analyser.getByteFrequencyData(this.bassData);
 
-          // Tiefe Frequenzen (Bins 0-3 entsprechen ca. 0-700 Hz bei fftSize 64)
-          const bassAvg = (this.bassData[0] + this.bassData[1] + this.bassData[2] + this.bassData[3]) / 4;
-          const normalized = bassAvg / 255; // 0..1
+          // Tiefe Frequenzen (Bins 0-3 ≈ 0–700 Hz bei fftSize 64)
+          const bassAvg    = (this.bassData[0]+this.bassData[1]+this.bassData[2]+this.bassData[3]) / 4;
+          const normalized = bassAvg / 255;
 
-          // Schatten-Intensität skaliert mit Bass
-          const cyanAlpha  = 0.3 + normalized * 0.55;
-          const magAlpha   = 0.2 + normalized * 0.5;
-          const purpAlpha  = 0.1 + normalized * 0.35;
-          const spread1    = Math.round(20 + normalized * 50);
-          const spread2    = Math.round(40 + normalized * 80);
-          const spread3    = Math.round(60 + normalized * 120);
-          const scale      = 1 + normalized * 0.012;
+          const cyanAlpha = 0.3 + normalized * 0.55;
+          const magAlpha  = 0.2 + normalized * 0.5;
+          const purpAlpha = 0.1 + normalized * 0.35;
+          const s1 = Math.round(20 + normalized * 50);
+          const s2 = Math.round(40 + normalized * 80);
+          const s3 = Math.round(60 + normalized * 120);
 
           this.radioContainer.style.boxShadow = `
-            0 0 ${spread1}px rgba(0, 212, 255, ${cyanAlpha.toFixed(2)}),
-            0 0 ${spread2}px rgba(255, 0, 110, ${magAlpha.toFixed(2)}),
-            0 0 ${spread3}px rgba(181, 55, 242, ${purpAlpha.toFixed(2)})
-          `;
+            0 0 ${s1}px rgba(0,212,255,${cyanAlpha.toFixed(2)}),
+            0 0 ${s2}px rgba(255,0,110,${magAlpha.toFixed(2)}),
+            0 0 ${s3}px rgba(181,55,242,${purpAlpha.toFixed(2)})`;
         };
         loop();
       }
